@@ -1,8 +1,16 @@
 #ifndef HTTPCLIENT_H
 #define HTTPCLIENT_H
+
 #include <string>
+
 class HttpClient {
 public:
-    void joinLobby(int lobbyId);
+    HttpClient(const std::string& serverUrl);
+    void get(const std::string& endpoint);
+    void post(const std::string& endpoint, const std::string& data);
+
+private:
+    std::string serverUrl;
 };
-#endif
+
+#endif // HTTPCLIENT_H

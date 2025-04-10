@@ -1,17 +1,21 @@
 #ifndef CLIENT_H
 #define CLIENT_H
-#include <string>
 
-#include "WebSocketClient.h"
 #include "HttpClient.h"
+#include "WebSocketClient.h"
+#include <string>
 
 class Client {
 public:
-    Client();
-    void connectToServer(const std::string& url);
-    void joinLobby(int lobbyId);
+    Client(const std::string& serverUrl);
+    void connect();
+    void sendHttpRequest(const std::string& endpoint);
+    void sendWebSocketMessage(const std::string& message);
+
 private:
-    WebSocketClient wsClient;
+    std::string serverUrl;
     HttpClient httpClient;
+    WebSocketClient webSocketClient;
 };
-#endif
+
+#endif // CLIENT_H
