@@ -1,20 +1,30 @@
 #include "WebSocketServer.h"
+#include "LobbyManager.h"
 #include <iostream>
-#include <thread>
-#include <chrono>
+#include <memory>
 
 int main() {
-    WebSocketServer server;
-    
-    // Start the server
-    server.run(9001);
-    
-    // Keep the server running
-    std::cout << "Press Enter to stop the server..." << std::endl;
-    std::cin.get();
-    
-    // Stop the server
-    server.stop();
+    try {
+        // Create lobby manager
+        LobbyManager lobbyManager;
+        
+        // Create WebSocket server
+        WebSocketServer server(8080);
+        
+        // Set up message handler
+        server.setOnMessageCallback([&lobbyManager](const std::string& message) {
+            return lobbyManager.handleMessage(message);
+        });
+        
+        std::cout << "Server started on port 8080" << std::endl;
+        
+        // Run server
+        server.run();
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
+    }
     
     return 0;
 }
