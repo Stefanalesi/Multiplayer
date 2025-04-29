@@ -1,33 +1,41 @@
+#include <SFML/Graphics.hpp>
+#include <memory>
 #include "WebSocketClient.h"
-#include <iostream>
-#include <thread>
-#include <chrono>
+#include "LobbyManager.h"
+#include "LobbyUI.h"
 
 int main() {
-    WebSocketClient client;
+    // Create window
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Game Lobby");
     
-    // Connect to the server
-    if (!client.connect("ws://localhost:9001")) {
+    // Initialize WebSocket client
+    WebSocketClient client;
+    if (!client.connect("ws://localhost:8080")) {
         std::cerr << "Failed to connect to server" << std::endl;
         return 1;
     }
     
-    // Send a test message
-    if (!client.send("Hello, server!")) {
-        std::cerr << "Failed to send message" << std::endl;
-        return 1;
+    // Initialize lobby manager and UI
+    auto lobbyManager = std::make_shared<LobbyManager>(client);
+    LobbyUI lobbyUI(lobbyManager);
+    
+    // Main game loop
+    while (window.isOpen()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            }
+            
+            lobbyUI.handleEvent(event);
+        }
+        
+        // Update lobby state
+        lobbyUI.update();
+        
+        // Render
+        lobbyUI.render(window);
     }
     
-    // Receive response
-    std::string response = client.receive();
-    if (!response.empty()) {
-        std::cout << "Received: " << response << std::endl;
-    }
-    
-    // Keep the client running to receive messages
-    std::cout << "Press Enter to disconnect..." << std::endl;
-    std::cin.get();
-    
-    client.close();
     return 0;
 }
