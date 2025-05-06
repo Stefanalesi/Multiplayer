@@ -1,0 +1,31 @@
+name: Run Unit Tests
+
+on:
+  push:
+    branches:
+      - '**'  # Runs on all branches
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Ensures all history and files are fetched
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0'  # Adjust version as needed
+
+      - name: Restore dependencies
+        run: dotnet restore SpriteEngineServer.sln
+
+      - name: Build the project
+        run: dotnet build SpriteEngineServer.sln --configuration Release
+
+      - name: Run xUnit tests
+        run: dotnet test SpriteEngineServer.sln --configuration Release --no-build --verbosity normal

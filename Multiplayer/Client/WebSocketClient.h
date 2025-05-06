@@ -1,20 +1,27 @@
-#ifndef WEBSOCKETCLIENT_H
-#define WEBSOCKETCLIENT_H
+#pragma once
 
 #include <string>
-#include <uwebsockets/App.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 
 class WebSocketClient {
 public:
-    explicit WebSocketClient(const std::string& serverUrl);
+    WebSocketClient();
+    ~WebSocketClient();
 
-    void connect();
-    void send(const std::string& message);
-    void receive();
+    bool connect(const std::string& url);
+    bool send(const std::string& message);
+    std::string receive();
+    void close();
 
 private:
+    SOCKET clientSocket;
+    bool isConnected;
     std::string serverUrl;
-    uWS::WebSocket<>* ws = nullptr;  // Pointer to the WebSocket connection
-};
+    int port;
 
-#endif // WEBSOCKETCLIENT_H
+    bool parseUrl(const std::string& url);
+    std::string generateWebSocketKey();
+    std::string base64Encode(const std::vector<unsigned char>& data);
+    bool performHandshake(SOCKET socket);
+};
